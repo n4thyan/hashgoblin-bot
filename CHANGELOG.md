@@ -1,5 +1,12 @@
 # Changelog
 
+## Planned v1.3.0
+
+- Planned safer game polish before touching the live PM2 bot.
+- Slot animation should be Discord-message edits only, with the final SHA-256 result still calculated once and saved normally.
+- Player-vs-player coinflip should use explicit accept/decline buttons, short expiry, locked balances and a normal proof receipt.
+- No real-money, prize, crypto or cash-out wording should be added.
+
 ## v1.2.0
 
 - Added deployment-safe `.env.ready.example` with the public Discord application/server IDs prefilled.
