@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'hashgoblin-bot',
-      script: 'src/index.js',
+      script: 'src/bootstrap.js',
       cwd: __dirname,
       instances: 1,
       autorestart: true,
