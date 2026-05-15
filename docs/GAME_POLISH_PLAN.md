@@ -21,6 +21,8 @@ Done so far:
 - Added both animation checks to `npm run preflight`.
 - Updated `package.json` and `ecosystem.config.cjs` to use `src/bootstrap.js`.
 - Added `.env` flags so animation can be switched on or off without code changes.
+- Fixed the v1.3 release check so `npm run preflight` accepts `1.3.0-rc.1`.
+- VPS live test confirmed the bootstrap entrypoint runs under PM2 and animated slot reveals work when enabled.
 
 The live `/slots` maths path is still handled by `src/index.js`. The bootstrap wrapper only changes how the final slot result is revealed in Discord when `HASHGOBLIN_ANIMATED_SLOTS=true`.
 
@@ -59,7 +61,20 @@ HASHGOBLIN_SLOT_ANIMATION_DELAY_MS=650
 HASHGOBLIN_VS_COINFLIP=false
 ```
 
-Keep animated slots false for the first deploy if you want the safest possible launch. Turn it to true after `/slots` works normally.
+`HASHGOBLIN_ANIMATED_SLOTS=true` has now been tested on the VPS. If anything acts weird, switch it back to `false` and restart with `pm2 restart hashgoblin-bot --update-env`.
+
+## Discord permission note
+
+Animated slots use the command channel, so they need the normal slash command reply/edit permissions.
+
+Big-win announcements are separate. If the log shows `DiscordAPIError[50013]: Missing Permissions`, the configured big-win channel is blocking HashGoblin from posting. Fix this in Discord by checking the channel permissions for the HashGoblin role:
+
+- View Channel: allowed
+- Send Messages: allowed
+- Embed Links: allowed
+- Read Message History: allowed
+
+If it is an announcement channel, also check any channel-specific overrides. The bot can still play games while this is broken, but big-win announcements will fail until that channel allows posts.
 
 ## Phase 2: PvP coinflip
 
@@ -106,7 +121,7 @@ git checkout feature/animated-games-vs
 npm ci
 npm run preflight
 npm run deploy:guild
-pm2 restart hashgoblin-bot
+pm2 restart hashgoblin-bot --update-env
 pm2 logs hashgoblin-bot --lines 80
 ```
 
