@@ -9,6 +9,17 @@ This branch is for adding game polish safely without touching the live VPS bot u
 - Keep the no real money, no prizes, no crypto framing everywhere.
 - Build and test on this branch before merging into `main` or restarting PM2.
 
+## Current branch status
+
+Done so far:
+
+- Added `src/lib/slotAnimation.js`.
+- Added `tools/slot-animation-selftest.js`.
+- Added `npm run test:slot-animation`.
+- Added the slot animation selftest to `npm run preflight`.
+
+Not wired into the live `/slots` handler yet. That is deliberate so the helper can be tested first before changing command behaviour.
+
 ## Phase 1: animated slots
 
 Discord cannot do real animation inside a slash command, so the safe version is message-edit animation.
@@ -35,6 +46,38 @@ Suggested reveal frames:
 [ 🍒 ] [ 🍋 ] [ ? ]
 [ 🍒 ] [ 🍋 ] [ 💎 ]
 ```
+
+The helper currently uses `❔` by default, but the selftest also checks plain `?` output so the display can be toned down later.
+
+## Integration patch for `/slots`
+
+After `npm run test:slot-animation` passes, wire the helper into `src/index.js`.
+
+Add near the other imports:
+
+```js
+const { animatedSlotsEnabled, replyWithAnimatedSlots } = require('./lib/slotAnimation');
+```
+
+Then replace only the final line of the existing `/slots` handler:
+
+```js
+return interaction.reply({ embeds: [embed] });
+```
+
+with:
+
+```js
+return replyWithAnimatedSlots({
+  interaction,
+  baseEmbed,
+  finalEmbed: embed,
+  result,
+  enabled: animatedSlotsEnabled()
+});
+```
+
+Do not move the proof generation, `playSlots(...)`, `applyGame(...)`, or big-win announcement logic into the animation helper. The helper should only reveal an already-settled result.
 
 ## Phase 2: PvP coinflip
 
@@ -103,6 +146,7 @@ Before touching the live PM2 bot:
 git checkout feature/animated-games-vs
 npm ci
 npm run selftest
+npm run test:slot-animation
 npm run deploy:guild
 pm2 restart hashgoblin-bot
 pm2 logs hashgoblin-bot --lines 80
