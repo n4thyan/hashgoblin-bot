@@ -11,9 +11,10 @@
     "check": "node --check src/bootstrap.js && node --check src/index.js && node --check src/deploy-commands.js && find src -name '*.js' -not -path 'src/bootstrap.js' -not -path 'src/index.js' -not -path 'src/deploy-commands.js' -print0 | xargs -0 -n1 node --check",
     "test": "node tools/selftest.js",
     "test:slot-animation": "node tools/slot-animation-selftest.js",
+    "test:bootstrap": "node tools/bootstrap-selftest.js",
     "smoke": "node tools/smoke-test.js",
     "release-check": "node tools/release-check.js",
-    "preflight": "npm run check && npm run test && npm run test:slot-animation && npm run smoke && npm run release-check"
+    "preflight": "npm run check && npm run test && npm run test:slot-animation && npm run test:bootstrap && npm run smoke && npm run release-check"
   },
   "dependencies": {
     "better-sqlite3": "^11.10.0",
