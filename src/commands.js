@@ -73,6 +73,12 @@ const commands = [
     .addStringOption(o => o.setName('side').setDescription('Heads or tails').setRequired(true)
       .addChoices({ name: 'Heads', value: 'heads' }, { name: 'Tails', value: 'tails' })),
 
+  new SlashCommandBuilder().setName('coinflipvs').setDescription('Challenge another member to a 50/50 Glory coinflip.')
+    .addUserOption(o => o.setName('user').setDescription('Member to challenge').setRequired(true))
+    .addIntegerOption(o => o.setName('amount').setDescription('Stake each player puts in').setRequired(true).setMinValue(10))
+    .addStringOption(o => o.setName('side').setDescription('Your side').setRequired(true)
+      .addChoices({ name: 'Heads', value: 'heads' }, { name: 'Tails', value: 'tails' })),
+
   new SlashCommandBuilder().setName('wheelspin').setDescription('Spin the Goblin Wheel using SHA-256 odds.')
     .addIntegerOption(o => o.setName('amount').setDescription('Bet amount').setRequired(true).setMinValue(10)),
 
@@ -106,6 +112,7 @@ const commands = [
     .addStringOption(o => o.setName('game').setDescription('Game to explain').setRequired(true)
       .addChoices(
         { name: 'Coinflip', value: 'coinflip' },
+        { name: 'PvP Coinflip', value: 'coinflipvs' },
         { name: 'Wheelspin', value: 'wheelspin' },
         { name: 'Slots', value: 'slots' },
         { name: 'Lotto', value: 'lotto' },
