@@ -1,123 +1,66 @@
 'use strict';
 
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const modCommands = require('./modCommands');
 
 const commands = [
-  new SlashCommandBuilder().setName('balance').setDescription('Check your Glory balance.')
-    .addUserOption(o => o.setName('user').setDescription('User to check').setRequired(false)),
-
-  new SlashCommandBuilder().setName('vault').setDescription('Protect Glory in your vault or withdraw it back to your wallet.')
-    .addSubcommand(sc => sc.setName('view').setDescription('View your wallet, vault and net worth.')
-      .addUserOption(o => o.setName('user').setDescription('User to check').setRequired(false)))
-    .addSubcommand(sc => sc.setName('deposit').setDescription('Move wallet Glory into your vault.')
-      .addIntegerOption(o => o.setName('amount').setDescription('Amount to deposit').setRequired(true).setMinValue(1)))
-    .addSubcommand(sc => sc.setName('withdraw').setDescription('Move vaulted Glory back into your wallet.')
-      .addIntegerOption(o => o.setName('amount').setDescription('Amount to withdraw').setRequired(true).setMinValue(1))),
-
-  new SlashCommandBuilder().setName('profile').setDescription('Show a HashGoblin profile card.')
-    .addUserOption(o => o.setName('user').setDescription('User to check').setRequired(false)),
-
-  new SlashCommandBuilder().setName('rank').setDescription('Show your server and global HashGoblin rank.')
-    .addUserOption(o => o.setName('user').setDescription('User to check').setRequired(false)),
-
+  new SlashCommandBuilder().setName('about').setDescription('Explain HashGoblin, Glory and SHA-256 receipts in simple terms.'),
+  new SlashCommandBuilder().setName('help').setDescription('Show the main HashGoblin commands and safety notes.'),
+  new SlashCommandBuilder().setName('balance').setDescription('Check your Glory balance.'),
+  new SlashCommandBuilder().setName('daily').setDescription('Claim your daily Glory.'),
+  new SlashCommandBuilder().setName('coinflip').setDescription('Flip a SHA-256 coin with a 2.5% house edge.')
+    .addStringOption(o => o.setName('pick').setDescription('heads or tails').setRequired(true)
+      .addChoices({ name: 'Heads', value: 'heads' }, { name: 'Tails', value: 'tails' }))
+    .addIntegerOption(o => o.setName('bet').setDescription('Glory to bet').setRequired(true).setMinValue(1)),
+  new SlashCommandBuilder().setName('slots').setDescription('Spin SHA-256 slot reels with exact odds.')
+    .addIntegerOption(o => o.setName('bet').setDescription('Glory to bet').setRequired(true).setMinValue(1)),
+  new SlashCommandBuilder().setName('hashjackpot').setDescription('High-variance leading-zero hash game.')
+    .addIntegerOption(o => o.setName('bet').setDescription('Glory to bet').setRequired(true).setMinValue(1)),
+  new SlashCommandBuilder().setName('lotto').setDescription('Buy an instant HashGoblin Lotto ticket. Pick 6 from 1-49 or quickpick.')
+    .addStringOption(o => o.setName('numbers').setDescription('Optional: 6 numbers from 1-49, e.g. 4 12 19 31 44 48').setRequired(false)),
+  new SlashCommandBuilder().setName('jackpot').setDescription('Show the current rolling HashGoblin Lotto jackpot pool.'),
+  new SlashCommandBuilder().setName('odds').setDescription('Show exact odds, expected return and bot edge for a HashGoblin game.')
+    .addStringOption(o => o.setName('game').setDescription('Game to inspect').setRequired(false)
+      .addChoices(
+        { name: 'Coinflip', value: 'coinflip' },
+        { name: 'Slots', value: 'slots' },
+        { name: 'HashJackpot', value: 'hashjackpot' },
+        { name: 'Lotto', value: 'lotto' }
+      )),
+  new SlashCommandBuilder().setName('recent').setDescription('Show recent HashGoblin games in this server.'),
+  new SlashCommandBuilder().setName('rank').setDescription('Show your server and global HashGoblin rank.'),
   new SlashCommandBuilder().setName('stats').setDescription('Show HashGoblin economy stats for this server or globally.')
     .addStringOption(o => o.setName('scope').setDescription('Stats scope').setRequired(false)
       .addChoices({ name: 'Server', value: 'server' }, { name: 'Global', value: 'global' })),
-
-  new SlashCommandBuilder().setName('recent').setDescription('Show recent HashGoblin games in this server.'),
-
-  new SlashCommandBuilder().setName('daily').setDescription('Claim your daily Glory.'),
-
-
-  new SlashCommandBuilder().setName('help').setDescription('Show the main HashGoblin commands and safety notes.'),
-
-  new SlashCommandBuilder().setName('about').setDescription('Explain HashGoblin, Glory and SHA-256 receipts in simple terms.'),
-
-  new SlashCommandBuilder().setName('botstatus').setDescription('Show deploy/test status for HashGoblin.'),
-
-  new SlashCommandBuilder().setName('shop').setDescription('View or buy cosmetic HashGoblin titles.')
-    .addSubcommand(sc => sc.setName('view').setDescription('View cosmetic titles available for Glory.'))
-    .addSubcommand(sc => sc.setName('buy').setDescription('Buy a cosmetic title.')
-      .addStringOption(o => o.setName('title_id').setDescription('Title ID from /shop view').setRequired(true))),
-
-  new SlashCommandBuilder().setName('inventory').setDescription('View owned HashGoblin cosmetics.')
-    .addUserOption(o => o.setName('user').setDescription('User to check').setRequired(false)),
-
-  new SlashCommandBuilder().setName('title').setDescription('Equip or clear your displayed HashGoblin title.')
-    .addSubcommand(sc => sc.setName('equip').setDescription('Equip an owned title.')
-      .addStringOption(o => o.setName('title_id').setDescription('Owned title ID').setRequired(true)))
-    .addSubcommand(sc => sc.setName('clear').setDescription('Clear your equipped cosmetic title.')),
-
-  new SlashCommandBuilder().setName('achievements').setDescription('Show HashGoblin achievement progress.')
-    .addUserOption(o => o.setName('user').setDescription('User to check').setRequired(false)),
-
-  new SlashCommandBuilder().setName('work').setDescription('Do an hourly goblin odd job for a small amount of Glory.'),
-
+  new SlashCommandBuilder().setName('top').setDescription('Show the richest or luckiest Glory goblins.')
+    .addStringOption(o => o.setName('board').setDescription('Leaderboard type').setRequired(false)
+      .addChoices({ name: 'Balance', value: 'balance' }, { name: 'Profit', value: 'profit' }, { name: 'Biggest Win', value: 'biggest_win' }))
+    .addStringOption(o => o.setName('scope').setDescription('Leaderboard scope').setRequired(false)
+      .addChoices({ name: 'Server', value: 'server' }, { name: 'Global', value: 'global' })),
+  new SlashCommandBuilder().setName('profile').setDescription('Show a HashGoblin profile card.')
+    .addUserOption(o => o.setName('user').setDescription('User to view').setRequired(false)),
   new SlashCommandBuilder().setName('give').setDescription('Give Glory to another server member. Goblin tax applies.')
-    .addUserOption(o => o.setName('user').setDescription('Who to give Glory to').setRequired(true))
-    .addIntegerOption(o => o.setName('amount').setDescription('Amount of Glory to send').setRequired(true).setMinValue(10)),
-
-  new SlashCommandBuilder().setName('trade').setDescription('Create, accept or decline pending Glory trades.')
+    .addUserOption(o => o.setName('user').setDescription('Member to pay').setRequired(true))
+    .addIntegerOption(o => o.setName('amount').setDescription('Amount of Glory').setRequired(true).setMinValue(1)),
+  new SlashCommandBuilder().setName('work').setDescription('Do odd goblin work for Glory. Cooldown applies.'),
+  new SlashCommandBuilder().setName('inventory').setDescription('View owned HashGoblin cosmetics.'),
+  new SlashCommandBuilder().setName('shop').setDescription('Browse or buy HashGoblin cosmetics.')
+    .addStringOption(o => o.setName('item_id').setDescription('Optional item ID to buy').setRequired(false)),
+  new SlashCommandBuilder().setName('title').setDescription('Equip or clear an owned cosmetic title.')
+    .addSubcommand(sc => sc.setName('equip').setDescription('Equip an owned title.')
+      .addStringOption(o => o.setName('item_id').setDescription('Title item ID').setRequired(true)))
+    .addSubcommand(sc => sc.setName('clear').setDescription('Clear your equipped cosmetic title.')),
+  new SlashCommandBuilder().setName('achievements').setDescription('Show HashGoblin achievement progress.')
+    .addUserOption(o => o.setName('user').setDescription('User to view').setRequired(false)),
+  new SlashCommandBuilder().setName('trade').setDescription('Manual Glory trades between members.')
     .addSubcommand(sc => sc.setName('create').setDescription('Offer Glory to another member for manual acceptance.')
-      .addUserOption(o => o.setName('user').setDescription('Who receives the trade offer').setRequired(true))
-      .addIntegerOption(o => o.setName('amount').setDescription('Amount of Glory to offer').setRequired(true).setMinValue(10))
-      .addStringOption(o => o.setName('note').setDescription('Optional note').setRequired(false)))
+      .addUserOption(o => o.setName('user').setDescription('Member to offer Glory to').setRequired(true))
+      .addIntegerOption(o => o.setName('amount').setDescription('Amount of Glory').setRequired(true).setMinValue(1))
+      .addStringOption(o => o.setName('note').setDescription('Optional note').setRequired(false).setMaxLength(120)))
     .addSubcommand(sc => sc.setName('accept').setDescription('Accept a pending trade sent to you.')
       .addStringOption(o => o.setName('trade_id').setDescription('Trade ID').setRequired(true)))
     .addSubcommand(sc => sc.setName('decline').setDescription('Decline/cancel a pending trade you are part of.')
-      .addStringOption(o => o.setName('trade_id').setDescription('Trade ID').setRequired(true)))
-    .addSubcommand(sc => sc.setName('list').setDescription('List pending trades involving you.')),
-
-  new SlashCommandBuilder().setName('coinflip').setDescription('Flip a SHA-256 coin with a 2.5% house edge.')
-    .addIntegerOption(o => o.setName('amount').setDescription('Bet amount').setRequired(true).setMinValue(10))
-    .addStringOption(o => o.setName('side').setDescription('Heads or tails').setRequired(true)
-      .addChoices({ name: 'Heads', value: 'heads' }, { name: 'Tails', value: 'tails' })),
-
-  new SlashCommandBuilder().setName('coinflipvs').setDescription('Challenge another member to a 50/50 Glory coinflip.')
-    .addUserOption(o => o.setName('user').setDescription('Member to challenge').setRequired(true))
-    .addIntegerOption(o => o.setName('amount').setDescription('Stake each player puts in').setRequired(true).setMinValue(10))
-    .addStringOption(o => o.setName('side').setDescription('Your side').setRequired(true)
-      .addChoices({ name: 'Heads', value: 'heads' }, { name: 'Tails', value: 'tails' })),
-
-  new SlashCommandBuilder().setName('wheelspin').setDescription('Spin the Goblin Wheel using SHA-256 odds.')
-    .addIntegerOption(o => o.setName('amount').setDescription('Bet amount').setRequired(true).setMinValue(10)),
-
-  new SlashCommandBuilder().setName('slots').setDescription('Spin SHA-256 slot reels with exact odds.')
-    .addIntegerOption(o => o.setName('amount').setDescription('Bet amount').setRequired(true).setMinValue(10)),
-
-  new SlashCommandBuilder().setName('lotto').setDescription('Buy an instant HashGoblin Lotto ticket. Pick 6 from 1-49 or quickpick.')
-    .addStringOption(o => o.setName('numbers').setDescription('Optional 6 unique numbers, e.g. 4 12 19 31 44 48').setRequired(false)),
-
-  new SlashCommandBuilder().setName('jackpot').setDescription('Show the current rolling HashGoblin Lotto jackpot pool.'),
-
-  new SlashCommandBuilder().setName('hashjackpot').setDescription('High-variance leading-zero hash game.')
-    .addIntegerOption(o => o.setName('amount').setDescription('Bet amount').setRequired(true).setMinValue(10)),
-
-  new SlashCommandBuilder().setName('leaderboard').setDescription('Show the richest or luckiest Glory goblins.')
-    .addStringOption(o => o.setName('type').setDescription('Leaderboard type').setRequired(false)
-      .addChoices(
-        { name: 'Wallet Balance', value: 'balance' },
-        { name: 'Net Worth', value: 'net_worth' },
-        { name: 'Biggest Win', value: 'biggest_win' },
-        { name: 'Lifetime Won', value: 'lifetime_won' },
-        { name: 'Lifetime Bet', value: 'lifetime_bet' },
-        { name: 'Net Profit', value: 'net_profit' }
-      ))
-    .addStringOption(o => o.setName('scope').setDescription('Leaderboard scope').setRequired(false)
-      .addChoices({ name: 'Server', value: 'server' }, { name: 'Global', value: 'global' })),
-
-
-
-  new SlashCommandBuilder().setName('odds').setDescription('Show exact odds, expected return and bot edge for a HashGoblin game.')
-    .addStringOption(o => o.setName('game').setDescription('Game to explain').setRequired(true)
-      .addChoices(
-        { name: 'Coinflip', value: 'coinflip' },
-        { name: 'PvP Coinflip', value: 'coinflipvs' },
-        { name: 'Wheelspin', value: 'wheelspin' },
-        { name: 'Slots', value: 'slots' },
-        { name: 'Lotto', value: 'lotto' },
-        { name: 'HashJackpot', value: 'hashjackpot' }
-      )),
+      .addStringOption(o => o.setName('trade_id').setDescription('Trade ID').setRequired(true))),
   new SlashCommandBuilder().setName('proof').setDescription('Show the SHA-256 receipt for a game.')
     .addStringOption(o => o.setName('game_id').setDescription('Proof/game ID, e.g. HG-ABC123').setRequired(true)),
 
@@ -170,4 +113,4 @@ const commands = [
       .addIntegerOption(o => o.setName('threshold').setDescription('Minimum profit to announce').setRequired(false).setMinValue(1)))
 ];
 
-module.exports = commands;
+module.exports = [...commands, ...modCommands];
