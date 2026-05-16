@@ -226,4 +226,5 @@ function installGameAnimationWrapper() {
 }
 
 installGameAnimationWrapper();
+require('./pvpRuntime').installPvpRuntime();
 require('./index');
