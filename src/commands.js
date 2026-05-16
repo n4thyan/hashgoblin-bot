@@ -1,6 +1,7 @@
 'use strict';
 
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const modCommands = require('./modCommands');
 
 const commands = [
   new SlashCommandBuilder().setName('balance').setDescription('Check your Glory balance.')
@@ -170,4 +171,4 @@ const commands = [
       .addIntegerOption(o => o.setName('threshold').setDescription('Minimum profit to announce').setRequired(false).setMinValue(1)))
 ];
 
-module.exports = commands;
+module.exports = [...commands, ...modCommands];
